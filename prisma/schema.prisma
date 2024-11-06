@@ -1,0 +1,202 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// prisma/schema.prisma
+datasource db {
+  provider  = "postgresql"
+  url  	    = env("DATABASE_URL")
+  // uncomment next line if you use Prisma <5.10
+  // directUrl = env("DATABASE_URL_UNPOOLED")
+}
+
+
+model User {
+  id          Int       @id @default(autoincrement())
+  name        String
+  email       String    @unique
+  password    String
+  phoneNumber String?
+  address     String?
+  city        String?
+  state       String?
+  postalCode  String?
+  country     String?
+  role        Role      @default(customer)
+  createdAt   DateTime  @default(now())
+
+  orders      Order[]
+  reviews     Review[]
+  cart        Cart?
+  wishlist    Wishlist?
+}
+
+enum Role {
+  customer
+  admin
+}
+
+model Category {
+  id          Int       @id @default(autoincrement())
+  name        String
+  description String?
+  createdAt   DateTime  @default(now())
+
+  products    Product[]
+}
+
+model Product {
+  id          Int       @id @default(autoincrement())
+  name        String
+  description String?
+  price       Float
+  stock       Int       @default(0)
+  imageUrl    String?
+  createdAt   DateTime  @default(now())
+
+  categoryId  Int?
+  category    Category? @relation(fields: [categoryId], references: [id])
+
+  orderItems  OrderItem[]
+  reviews     Review[]
+  cartItems   CartItem[]
+  wishlistItems WishlistItem[]
+}
+
+model Order {
+  id             Int       @id @default(autoincrement())
+  totalAmount    Float
+  status         OrderStatus @default(pending)
+  shippingAddress String?
+  paymentStatus  PaymentStatus @default(pending)
+  createdAt      DateTime  @default(now())
+
+  userId         Int
+  user           User      @relation(fields: [userId], references: [id])
+
+  orderItems     OrderItem[]
+  payment        Payment?
+  shipping       Shipping?
+}
+
+enum OrderStatus {
+  pending
+  shipped
+  delivered
+  canceled
+}
+
+enum PaymentStatus {
+  pending
+  completed
+  failed
+}
+
+model OrderItem {
+  id          Int     @id @default(autoincrement())
+  quantity    Int
+  price       Float
+
+  orderId     Int
+  order       Order   @relation(fields: [orderId], references: [id])
+
+  productId   Int
+  product     Product @relation(fields: [productId], references: [id])
+}
+
+model Payment {
+  id            Int       @id @default(autoincrement())
+  paymentMethod PaymentMethod
+  paymentStatus PaymentStatus @default(pending)
+  paymentAmount Float
+  transactionId String?
+  paymentDate   DateTime  @default(now())
+
+  orderId       Int       @unique
+  order         Order     @relation(fields: [orderId], references: [id])
+}
+
+enum PaymentMethod {
+  credit_card
+  paypal
+  bank_transfer
+  cash_on_delivery
+}
+
+model Review {
+  id        Int       @id @default(autoincrement())
+  rating    Int       @default(1) @map("rating") // Check for range constraint
+  comment   String?
+  createdAt DateTime  @default(now())
+
+  userId    Int
+  user      User      @relation(fields: [userId], references: [id])
+
+  productId Int
+  product   Product   @relation(fields: [productId], references: [id])
+}
+
+model Cart {
+  id         Int      @id @default(autoincrement())
+  createdAt  DateTime @default(now())
+
+  userId     Int      @unique
+  user       User     @relation(fields: [userId], references: [id])
+
+  cartItems  CartItem[]
+}
+
+model CartItem {
+  id        Int     @id @default(autoincrement())
+  quantity  Int     @default(1)
+
+  cartId    Int
+  cart      Cart    @relation(fields: [cartId], references: [id])
+
+  productId Int
+  product   Product @relation(fields: [productId], references: [id])
+}
+
+model Shipping {
+  id              Int          @id @default(autoincrement())
+  shippingAddress String
+  city            String
+  state           String
+  postalCode      String
+  country         String
+  shippingStatus  ShippingStatus @default(processing)
+  trackingNumber  String?
+  shippingDate    DateTime      @default(now())
+
+  orderId         Int          @unique
+  order           Order        @relation(fields: [orderId], references: [id])
+}
+
+enum ShippingStatus {
+  processing
+  shipped
+  delivered
+}
+
+model Wishlist {
+  id            Int       @id @default(autoincrement())
+  createdAt     DateTime  @default(now())
+
+  userId        Int       @unique
+  user          User      @relation(fields: [userId], references: [id])
+
+  wishlistItems WishlistItem[]
+}
+
+model WishlistItem {
+  id          Int     @id @default(autoincrement())
+
+  wishlistId  Int
+  wishlist    Wishlist @relation(fields: [wishlistId], references: [id])
+
+  productId   Int
+  product     Product  @relation(fields: [productId], references: [id])
+}
