@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
+import { MotionDiv, MotionH1 } from "@/components/type/motion";
 
 export default function ContactPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -25,14 +26,14 @@ export default function ContactPage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-background/50 py-16 px-4">
       <div className="max-w-4xl mx-auto">
-        <motion.h1
+        <MotionH1
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
           className="text-4xl font-bold text-center mb-8 text-foreground"
         >
           Contact Us
-        </motion.h1>
+        </MotionH1>
 
         <div className="grid md:grid-cols-2 gap-12">
           <motion.div
@@ -45,7 +46,7 @@ export default function ContactPage() {
             </h2>
             <p className="text-muted-foreground mb-6">
               Have questions about our 3D printing services? Need a quote for
-              your project? We're here to help!
+              your project? We&apos;re here to help!
             </p>
             <div className="space-y-4">
               <div className="flex items-center">
@@ -172,7 +173,7 @@ export default function ContactPage() {
                 </CardContent>
               </Card>
             ) : (
-              <motion.div
+              <MotionDiv
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.5 }}
@@ -182,10 +183,10 @@ export default function ContactPage() {
                 <strong className="font-bold">Thank you!</strong>
                 <span className="block sm:inline">
                   {" "}
-                  Your message has been sent successfully. We'll get back to you
-                  soon.
+                  Your message has been sent successfully. We&apos;ll get back
+                  to you soon.
                 </span>
-              </motion.div>
+              </MotionDiv>
             )}
           </motion.div>
         </div>
@@ -194,7 +195,7 @@ export default function ContactPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.6 }}
-          className="mt-16"
+          style={{ marginTop: "4rem" }}
         >
           <h2 className="text-2xl font-semibold mb-4 text-center text-foreground">
             Visit Our Workshop

@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import Link from "next/link";
 import Image from "next/image";
+import { MotionDiv } from "./type/motion";
 
 export default function HomePage() {
   const [isVisible, setIsVisible] = useState(false);
@@ -29,7 +30,7 @@ export default function HomePage() {
       {/* Hero Section */}
       <section className="relative h-screen flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 z-0">
-          <motion.div
+          <MotionDiv
             initial={{ scale: 1.2, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ duration: 1.5 }}
@@ -39,7 +40,7 @@ export default function HomePage() {
         </div>
 
         <div className="container mx-auto px-4 z-10">
-          <motion.div
+          <MotionDiv
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.5 }}
@@ -61,16 +62,16 @@ export default function HomePage() {
                 Explore Services
               </Button>
             </div>
-          </motion.div>
+          </MotionDiv>
         </div>
 
-        <motion.div
+        <MotionDiv
           className="absolute bottom-4 left-1/2 transform -translate-x-1/2"
           animate={{ y: [0, 10, 0] }}
           transition={{ repeat: Infinity, duration: 1.5 }}
         >
           <ChevronDown className="w-8 h-8 text-muted-foreground" />
-        </motion.div>
+        </MotionDiv>
       </section>
 
       {/* Features Section */}
@@ -256,7 +257,7 @@ export default function HomePage() {
           </h2>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {[1, 2, 3, 4, 5, 6, 7, 8].map((item) => (
-              <motion.div
+              <MotionDiv
                 key={item}
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{
@@ -273,7 +274,7 @@ export default function HomePage() {
                   objectFit="cover"
                   className="transition-transform duration-300 hover:scale-110"
                 />
-              </motion.div>
+              </MotionDiv>
             ))}
           </div>
           <div className="text-center mt-12">

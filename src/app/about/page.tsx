@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { ChevronDown, Printer, Upload, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { MotionDiv, MotionImg } from "@/components/type/motion";
 
 export default function AboutPage() {
   const [isVisible, setIsVisible] = useState(false);
@@ -14,7 +15,7 @@ export default function AboutPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-background/50 max-w-screen-xl mx-auto">
-      <motion.div
+      <MotionDiv
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: isVisible ? 1 : 0, y: isVisible ? 0 : 20 }}
         transition={{ duration: 0.8 }}
@@ -30,23 +31,23 @@ export default function AboutPage() {
               Bringing Ideas to Life
             </h2>
             <p className="text-muted-foreground text-lg leading-relaxed">
-              At our core, we're passionate about transforming digital designs
-              into tangible realities. Our state-of-the-art 3D printing
+              At our core, we&apos;re passionate about transforming digital
+              designs into tangible realities. Our state-of-the-art 3D printing
               technology and expert team work tirelessly to deliver
               high-quality, precision-crafted parts and products for a diverse
               range of applications.
             </p>
             <p className="text-muted-foreground text-lg leading-relaxed">
-              Whether you're a hobbyist, engineer, designer, or business, we're
-              here to make cutting-edge 3D printing technology accessible and
-              user-friendly.
+              Whether you&apos;re a hobbyist, engineer, designer, or business,
+              we're here to make cutting-edge 3D printing technology accessible
+              and user-friendly.
             </p>
             <Button className="mt-4 text-lg" size="lg">
               Explore Our Services
             </Button>
           </div>
           <div className="relative h-96 lg:h-[600px] overflow-hidden rounded-2xl shadow-2xl">
-            <motion.img
+            <MotionImg
               src="/printedpart.jpg"
               alt="3D Printing in Action"
               className="object-cover w-full h-full"
@@ -95,7 +96,7 @@ export default function AboutPage() {
                   "Get professional advice to optimize your designs for the best results, ensuring your vision becomes reality.",
               },
             ].map((service, index) => (
-              <motion.div
+              <MotionDiv
                 key={index}
                 className="bg-card p-8 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300"
                 initial={{ opacity: 0, y: 20 }}
@@ -107,7 +108,7 @@ export default function AboutPage() {
                   {service.title}
                 </h3>
                 <p className="text-card-foreground/80">{service.description}</p>
-              </motion.div>
+              </MotionDiv>
             ))}
           </div>
         </div>
@@ -125,7 +126,7 @@ export default function AboutPage() {
               "Quick turnaround times",
               "Convenient online ordering",
             ].map((item, index) => (
-              <motion.div
+              <MotionDiv
                 key={index}
                 className="flex items-center space-x-3"
                 initial={{ opacity: 0, x: -20 }}
@@ -147,7 +148,7 @@ export default function AboutPage() {
                   ></path>
                 </svg>
                 <span>{item}</span>
-              </motion.div>
+              </MotionDiv>
             ))}
           </div>
         </div>
@@ -157,22 +158,22 @@ export default function AboutPage() {
             Ready to Start Your Project?
           </h2>
           <p className="text-muted-foreground mb-8 text-lg">
-            Let's bring your ideas to life with our cutting-edge 3D printing
-            technology.
+            Let&apos;s bring your ideas to life with our cutting-edge 3D
+            printing technology.
           </p>
           <Button className="text-lg" size="lg">
             Get Started Now
           </Button>
         </div>
 
-        <motion.div
+        <MotionDiv
           className="absolute bottom-4 left-1/2 transform -translate-x-1/2"
           animate={{ y: [0, 10, 0] }}
           transition={{ repeat: Infinity, duration: 1.5 }}
         >
           <ChevronDown className="w-8 h-8 text-muted-foreground" />
-        </motion.div>
-      </motion.div>
+        </MotionDiv>
+      </MotionDiv>
     </div>
   );
 }

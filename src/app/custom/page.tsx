@@ -440,8 +440,8 @@ export default function CustomOrderForm() {
           <Check className="h-4 w-4" />
           <AlertTitle>Success</AlertTitle>
           <AlertDescription>
-            Your order has been successfully submitted. We'll contact you soon
-            with further details.
+            Your order has been successfully submitted. We&apos;ll contact you
+            soon with further details.
           </AlertDescription>
         </Alert>
       )}

@@ -103,7 +103,7 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronDown, Plus, Minus, Filter, X } from "lucide-react";
+import { Plus, Minus, Filter, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -128,7 +128,8 @@ import {
 } from "@/components/ui/sheet";
 import Link from "next/link";
 import Image from "next/image";
-import { toast, useToast } from "@/hooks/use-toast";
+import { useToast } from "@/hooks/use-toast";
+import { MotionDiv } from "@/components/type/motion";
 
 // Mock data for products
 const products = [
@@ -193,11 +194,10 @@ export default function ProjectPage() {
   const [categoryFilter, setCategoryFilter] = useState("All");
   const [priceRange, setPriceRange] = useState([0, 100]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [sortBy, setSortBy] = useState("name");
+  const [sortBy, setSortBy] = useState<keyof (typeof products)[0]>("name");
   const [sortOrder, setSortOrder] = useState("asc");
   const [showFastPrintOnly, setShowFastPrintOnly] = useState(false);
-  const [activeFilters, setActiveFilters] = useState([]);
-  const toast = useToast();
+  const [activeFilters, setActiveFilters] = useState<string[]>([]);
 
   const categories = [
     "All",
@@ -216,7 +216,7 @@ export default function ProjectPage() {
   ]);
 
   const handleFilter = () => {
-    let filtered = products.filter(
+    const filtered = products.filter(
       (product) =>
         (categoryFilter === "All" || product.category === categoryFilter) &&
         product.price >= priceRange[0] &&
@@ -227,8 +227,10 @@ export default function ProjectPage() {
     );
 
     filtered.sort((a, b) => {
-      if (a[sortBy] < b[sortBy]) return sortOrder === "asc" ? -1 : 1;
-      if (a[sortBy] > b[sortBy]) return sortOrder === "asc" ? 1 : -1;
+      if (a[sortBy as keyof typeof a] < b[sortBy as keyof typeof b])
+        return sortOrder === "asc" ? -1 : 1;
+      if (a[sortBy as keyof typeof a] > b[sortBy as keyof typeof b])
+        return sortOrder === "asc" ? 1 : -1;
       return 0;
     });
 
@@ -349,7 +351,7 @@ export default function ProjectPage() {
           </div>
 
           <AnimatePresence>
-            <motion.div
+            <MotionDiv
               className="grid md:grid-cols-2 lg:grid-cols-3 gap-6"
               initial="hidden"
               animate="visible"
@@ -361,7 +363,7 @@ export default function ProjectPage() {
               {filteredProducts.map((product) => (
                 <ProductCard key={product.id} product={product} />
               ))}
-            </motion.div>
+            </MotionDiv>
           </AnimatePresence>
         </div>
       </div>

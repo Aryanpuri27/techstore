@@ -77,7 +77,7 @@ import { Star, ShoppingCart, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import Header from "@/components/Header";
+
 import ImageCarousel from "@/components/image-corosul";
 import ReviewSection from "@/components/ReviewSection";
 // import Footer from "@/components/Footer";
