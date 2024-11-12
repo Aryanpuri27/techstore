@@ -80,6 +80,13 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { ModeToggle } from "./theam-toggle";
 import ShoppingCartCom from "./cart";
+import {
+  ClerkProvider,
+  SignInButton,
+  SignedIn,
+  SignedOut,
+  UserButton,
+} from "@clerk/nextjs";
 
 // This would typically come from your authentication system
 const user = {
@@ -110,7 +117,7 @@ export default function Header() {
               <line x1="2" y1="12" x2="22" y2="12" />
               <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
             </svg>
-            <span className="text-xl font-bold">TechStore</span>
+            <span className="text-xl font-bold">AIVore</span>
           </Link>
 
           <nav className="hidden md:flex space-x-4">
@@ -147,7 +154,7 @@ export default function Header() {
           </nav>
 
           <div className="flex items-center space-x-4">
-            {user.isLoggedIn ? (
+            {/* {user.isLoggedIn ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button
@@ -178,7 +185,13 @@ export default function Header() {
               <Button variant="ghost" size="sm">
                 Log in
               </Button>
-            )}
+            )} */}
+            <SignedOut>
+              <SignInButton />
+            </SignedOut>
+            <SignedIn>
+              <UserButton />
+            </SignedIn>
             <Button variant="ghost" size="icon">
               <ShoppingCartCom />
               <span className="sr-only">Cart</span>

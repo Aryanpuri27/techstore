@@ -1,3 +1,5 @@
+// "use server";
+
 import React, { useEffect, useState } from "react";
 import {
   Sheet,
@@ -11,6 +13,12 @@ import { Button } from "./ui/button";
 import { Minus, Plus, ShoppingCart, X } from "lucide-react";
 import { Badge } from "./ui/badge";
 import Image from "next/image";
+import { redirect } from "next/navigation";
+import { useSession } from "@clerk/nextjs";
+import { createClient } from "@supabase/supabase-js";
+// import { getFromCartAction } from "@/app/ssr/getFromCart";
+
+// import { createClerkSupabaseClientSsr } from "@/app/ssr/client";
 
 const products = [
   {
@@ -73,21 +81,88 @@ function ShoppingCartCom() {
   const [cart, setCart] = useState([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
 
-  // Retrieve cart from localStorage
-  const getFromLocalStorage = () => {
-    const cart = localStorage.getItem("cart");
-    console.log("cart", cart);
-    return cart ? JSON.parse(cart) : [];
-  };
+  const { session } = useSession();
+  function createClerkSupabaseClient() {
+    return createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_KEY!,
+      {
+        global: {
+          // Get the custom Supabase token from Clerk
+          fetch: async (url, options = {}) => {
+            // The Clerk `session` object has the getToken() method
+            const clerkToken = await session?.getToken({
+              // Pass the name of the JWT template you created in the Clerk Dashboard
+              // For this tutorial, you named it 'supabase'
+              template: "supabase",
+            });
 
-  // Sync cart with local storage on load and save when cart changes
+            // Insert the Clerk Supabase token into the headers
+            const headers = new Headers((options as RequestInit).headers);
+            headers.set("Authorization", `Bearer ${clerkToken}`);
+
+            // Call the default fetch
+            return fetch(url, {
+              ...options,
+              headers,
+            });
+          },
+        },
+      }
+    );
+  }
+  const client = createClerkSupabaseClient();
+  // async function abc() {
+  //   const response = await client.from("cart").select("*");
+  //   console.log("response", response);
+  //   setCart(response.data);
+  // }
+  // abc();
   useEffect(() => {
-    setCart(getFromLocalStorage());
+    const abc = async () => {
+      // const response = await client.from("cart").select("*");
+      const { data, error } = await client.from("cart").select(`
+      id,
+      quantity,
+      product_id,
+      products (
+        id,
+        name,
+        category,
+        price,
+        discounted_price,
+        rating,
+        review_count,
+        description,
+        images,
+        specifications
+      )
+    `);
+      console.log("data", data);
+      if (data) setCart(data);
+    };
+    abc();
   }, [isCartOpen]);
 
-  useEffect(() => {
-    localStorage.setItem("cart", JSON.stringify(cart));
-  }, [cart]);
+  // // Retrieve cart from localStorage
+  // const getFromLocalStorage = () => {
+  //   const cart = localStorage.getItem("cart");
+  //   console.log("cart", cart);
+  //   return cart ? JSON.parse(cart) : [];
+  // };
+
+  // // Sync cart with local storage on load and save when cart changes
+  // useEffect(() => {
+  //   setCart(getFromLocalStorage());
+  // }, [isCartOpen]);
+
+  // async () => {
+  //   // setCart();
+  // };
+
+  // useEffect(() => {
+
+  // }, []);
 
   const addToCart = (product, quantity) => {
     setCart((prevCart) => {
@@ -105,12 +180,12 @@ function ShoppingCartCom() {
     setIsCartOpen(true);
   };
 
-  const removeFromCart = (productId) => {
+  const removeFromCart = async (productId) => {
     setCart((prevCart) => prevCart.filter((item) => item.id !== productId));
-    localStorage.setItem("cart", JSON.stringify(cart));
+    await client.from("cart").delete().match({ id: productId });
   };
 
-  const updateCartItemQuantity = (productId, newQuantity) => {
+  const updateCartItemQuantity = async (productId, newQuantity) => {
     setCart((prevCart) =>
       prevCart
         .map((item) =>
@@ -120,11 +195,18 @@ function ShoppingCartCom() {
         )
         .filter((item) => item.quantity > 0)
     );
-    localStorage.setItem("cart", JSON.stringify(cart));
+
+    await client
+      .from("cart")
+      .update({ quantity: newQuantity })
+      .match({ id: productId });
   };
 
   const cartTotal = Array.isArray(cart)
-    ? cart.reduce((total, item) => total + item.price * item.quantity, 0)
+    ? cart.reduce(
+        (total, item) => total + item.products.price * item.quantity,
+        0
+      )
     : 0;
 
   return (
@@ -151,18 +233,19 @@ function ShoppingCartCom() {
           <div className="mt-6 space-y-4">
             {cart.map((item) => (
               <div key={item.id} className="flex items-center justify-between">
+                {/* <h1>{JSON.stringify(item)}</h1> */}
                 <div className="flex items-center space-x-4">
                   <Image
-                    src={item.image}
-                    alt={item.name}
+                    src={item.products.images[0]}
+                    alt={item.products.name}
                     width={50}
                     height={50}
                     className="rounded-md"
                   />
                   <div>
-                    <h3 className="font-semibold">{item.name}</h3>
+                    <h3 className="font-semibold">{item.products.name}</h3>
                     <p className="text-sm text-muted-foreground">
-                      ${item.price.toFixed(2)} each
+                      Rs {item.products.price.toFixed(2)} each
                     </p>
                   </div>
                 </div>
@@ -201,11 +284,12 @@ function ShoppingCartCom() {
             <div className="mt-6 space-y-4">
               <div className="flex justify-between items-center">
                 <span className="font-semibold">Total:</span>
-                <span className="font-bold">${cartTotal.toFixed(2)}</span>
+                <span className="font-bold">Rs{cartTotal.toFixed(2)}</span>
               </div>
               <Button
                 className="w-full"
-                onClick={() => alert("Proceeding to checkout...")}
+                onClick={() => redirect("/checkout")}
+                // formAction={"/checkout"}
               >
                 Checkout
               </Button>

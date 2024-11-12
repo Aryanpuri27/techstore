@@ -1,6 +1,8 @@
+"use server";
 import HomePage from "@/components/home-page";
+// import { createClerkSupabaseClientSsr } from "@/app/ssr/client";
 
-export default function Home() {
+export default async function Home() {
   return (
     <div>
       <HomePage />

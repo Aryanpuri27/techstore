@@ -88,6 +88,7 @@ import ReviewSection from "@/components/ReviewSection";
 const product = {
   id: 1,
   name: "Premium Wireless Headphones",
+  category: "Electronics",
   price: 199.99,
   discountedPrice: 149.99,
   rating: 4.5,

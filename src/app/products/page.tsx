@@ -130,6 +130,9 @@ import Link from "next/link";
 import Image from "next/image";
 import { useToast } from "@/hooks/use-toast";
 import { MotionDiv } from "@/components/type/motion";
+// import { addToCartAction } from "../ssr/actions";
+import { useSession } from "@clerk/nextjs";
+import { createClient } from "@supabase/supabase-js";
 
 // Mock data for products
 const products = [
@@ -198,6 +201,39 @@ export default function ProjectPage() {
   const [sortOrder, setSortOrder] = useState("asc");
   const [showFastPrintOnly, setShowFastPrintOnly] = useState(false);
   const [activeFilters, setActiveFilters] = useState<string[]>([]);
+
+  const { session } = useSession();
+  function createClerkSupabaseClient() {
+    return createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_KEY!,
+      {
+        global: {
+          // Get the custom Supabase token from Clerk
+          fetch: async (url, options = {}) => {
+            // The Clerk `session` object has the getToken() method
+            const clerkToken = await session?.getToken({
+              // Pass the name of the JWT template you created in the Clerk Dashboard
+              // For this tutorial, you named it 'supabase'
+              template: "supabase",
+            });
+
+            // Insert the Clerk Supabase token into the headers
+            const headers = new Headers((options as RequestInit).headers);
+            headers.set("Authorization", `Bearer ${clerkToken}`);
+
+            // Call the default fetch
+            return fetch(url, {
+              ...options,
+              headers,
+            });
+          },
+        },
+      }
+    );
+  }
+
+  const client = createClerkSupabaseClient();
 
   const categories = [
     "All",
@@ -361,7 +397,11 @@ export default function ProjectPage() {
               }}
             >
               {filteredProducts.map((product) => (
-                <ProductCard key={product.id} product={product} />
+                <ProductCard
+                  key={product.id}
+                  product={product}
+                  client={client}
+                />
               ))}
             </MotionDiv>
           </AnimatePresence>
@@ -491,15 +531,58 @@ function FiltersContent({
   );
 }
 
-function ProductCard({ product }) {
+function ProductCard({ product, client }) {
+  const { session } = useSession();
+
+  // // Create a custom supabase client that injects the Clerk Supabase token into the request headers
+  // function createClerkSupabaseClient() {
+  //   return createClient(
+  //     process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  //     process.env.NEXT_PUBLIC_SUPABASE_KEY!,
+  //     {
+  //       global: {
+  //         // Get the custom Supabase token from Clerk
+  //         fetch: async (url, options = {}) => {
+  //           // The Clerk `session` object has the getToken() method
+  //           const clerkToken = await session?.getToken({
+  //             // Pass the name of the JWT template you created in the Clerk Dashboard
+  //             // For this tutorial, you named it 'supabase'
+  //             template: "supabase",
+  //           });
+
+  //           // Insert the Clerk Supabase token into the headers
+  //           const headers = new Headers(options?.headers);
+  //           headers.set("Authorization", `Bearer ${clerkToken}`);
+
+  //           // Call the default fetch
+  //           return fetch(url, {
+  //             ...options,
+  //             headers,
+  //           });
+  //         },
+  //       },
+  //     }
+  //   );
+  // }
+  // const client = createClerkSupabaseClient();
   const [quantity, setQuantity] = useState(1);
   const { toast } = useToast();
   const incrementQuantity = () => setQuantity((prev) => prev + 1);
   const decrementQuantity = () => setQuantity((prev) => Math.max(1, prev - 1));
-  function addToCart(product, quantity) {
-    const cart = JSON.parse(localStorage.getItem("cart")) || [];
-    cart.push({ ...product, quantity });
-    localStorage.setItem("cart", JSON.stringify(cart));
+  async function addToCart(product, quantity) {
+    // addToCartAction(product, quantity, product.price);
+    try {
+      const response = await client.from("cart").insert({
+        product_id: product.id,
+        quantity: quantity,
+        unit_price: product.price,
+      });
+
+      console.log("Task successfully added!", response);
+    } catch (error: any) {
+      console.error("Error adding task:", error.message);
+      throw new Error("Failed to add task");
+    }
     toast({
       title: "Added to Cart",
       description: `${quantity} ${product.name} added to cart`,
