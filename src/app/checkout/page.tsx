@@ -53,7 +53,9 @@ export default function CheckoutPage() {
     country: "",
   });
   const [agreeToTerms, setAgreeToTerms] = useState(false);
-  const [sessionData, setSessionData] = useState({});
+  const [sessionData, setSessionData] = useState<{
+    payment_session_id: string;
+  }>({ payment_session_id: "" });
   const { session } = useSession();
 
   useEffect(() => {
@@ -104,7 +106,7 @@ export default function CheckoutPage() {
         toast({
           title: "Order Created",
           description: `Order ID: ${orderId}`,
-          variant: "success",
+          variant: "default",
         });
       } catch (error) {
         console.error("Error during checkout:", error);
@@ -159,7 +161,7 @@ export default function CheckoutPage() {
     }
     toast({
       title: "Redirecting to Payment",
-      description: `Session ID: ${sessionData.payment_session_id}`,
+      description: ``,
     });
     const cashfree = await load({ mode: "sandbox" });
     cashfree
@@ -369,7 +371,7 @@ export default function CheckoutPage() {
                     <Checkbox
                       id="terms"
                       checked={agreeToTerms}
-                      onCheckedChange={(checked) => setAgreeToTerms(checked)}
+                      onCheckedChange={(checked) => setAgreeToTerms(true)}
                     />
                     <label htmlFor="terms" className="text-sm">
                       I agree to the terms and conditions

@@ -1,4 +1,4 @@
-import { notFound } from "next/navigation";
+import { notFound, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import { CheckCircle2, Package, Truck } from "lucide-react";
 
@@ -35,13 +35,12 @@ async function getOrderDetails(orderId: string) {
 
   return orderItems;
 }
-
-export default async function OrderSuccessPage({
-  searchParams,
-}: {
-  searchParams: { order_id: string };
-}) {
-  const orderId = searchParams.order_id;
+type Props = {
+  searchParams: Promise<{ [orderId: string]: string }>;
+};
+export default async function OrderSuccessPage({ searchParams }: Props) {
+  const sp = await searchParams;
+  const orderId = sp.orderId;
   if (!orderId) {
     notFound();
   }
