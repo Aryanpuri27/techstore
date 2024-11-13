@@ -51,18 +51,17 @@ export default function ContactPage() {
             <div className="space-y-4">
               <div className="flex items-center">
                 <Phone className="w-5 h-5 mr-2 text-primary" />
-                <span className="text-foreground">+1 (555) 123-4567</span>
+                <span className="text-foreground">9546984154</span>
               </div>
               <div className="flex items-center">
                 <Mail className="w-5 h-5 mr-2 text-primary" />
-                <span className="text-foreground">
-                  info@3dprintingcompany.com
-                </span>
+                <span className="text-foreground">anishbasu95@gmail.com</span>
               </div>
               <div className="flex items-center">
                 <MapPin className="w-5 h-5 mr-2 text-primary" />
                 <span className="text-foreground">
-                  123 3D Printing St, Tech City, TC 12345
+                  SunainabasuKunj Laxmivihar Deoghar 814112, Deoghar, Jharkhand,
+                  PIN: 814112
                 </span>
               </div>
             </div>

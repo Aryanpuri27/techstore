@@ -532,7 +532,7 @@ function FiltersContent({
 }
 
 function ProductCard({ product, client }) {
-  const { session } = useSession();
+  // const { session } = useSession();
 
   // // Create a custom supabase client that injects the Clerk Supabase token into the request headers
   // function createClerkSupabaseClient() {
