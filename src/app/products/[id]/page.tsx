@@ -134,10 +134,10 @@ export default function ProductPage() {
               </div>
               <div className="mb-4">
                 <span className="text-3xl font-bold text-primary">
-                  ${product.discountedPrice.toFixed(2)}
+                  Rs.{product.discountedPrice.toFixed(2)}
                 </span>
                 <span className="ml-2 text-xl text-gray-500 line-through">
-                  ${product.price.toFixed(2)}
+                  Rs.{product.price.toFixed(2)}
                 </span>
                 <Badge className="ml-2 bg-green-500">
                   Save{" "}
@@ -180,7 +180,7 @@ export default function ProductPage() {
                 </TabsContent>
                 <TabsContent value="shipping">
                   <p>
-                    Free shipping on orders over $100. Standard delivery 3-5
+                    Free shipping on orders over Rs10000. Standard delivery 3-5
                     business days.
                   </p>
                 </TabsContent>

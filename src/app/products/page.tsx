@@ -472,8 +472,8 @@ function FiltersContent({
           className="mt-2"
         />
         <div className="flex justify-between mt-2">
-          <span>${priceRange[0]}</span>
-          <span>${priceRange[1]}</span>
+          <span>Rs.{priceRange[0]}</span>
+          <span>Rs.{priceRange[1]}</span>
         </div>
       </div>
 
@@ -620,7 +620,7 @@ function ProductCard({ product, client }) {
             Print Time: {product.printTime} hours
           </p>
           <p className="text-lg font-bold text-foreground">
-            ${product.price.toFixed(2)}
+            Rs.{product.price.toFixed(2)}
           </p>
         </CardContent>
         <CardFooter className="p-4 pt-0 flex items-center justify-between">
