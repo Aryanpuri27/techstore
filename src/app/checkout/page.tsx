@@ -1,10 +1,15 @@
 "use client";
 
 import { useState, useEffect } from "react";
+
+// Declare Razorpay on the window object
+declare global {
+  interface Window {
+    Razorpay: any;
+  }
+}
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { load } from "@cashfreepayments/cashfree-js";
-import axios from "axios";
 import { useSession } from "@clerk/nextjs";
 import { createClient } from "@supabase/supabase-js";
 import {
@@ -14,6 +19,7 @@ import {
   ChevronRight,
   ChevronLeft,
 } from "lucide-react";
+import { useRazorpay } from "react-razorpay";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -36,6 +42,7 @@ import { Separator } from "@/components/ui/separator";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { toast } from "@/hooks/use-toast";
+import { after } from "node:test";
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -53,13 +60,10 @@ export default function CheckoutPage() {
     country: "",
   });
   const [agreeToTerms, setAgreeToTerms] = useState(false);
-  const [sessionData, setSessionData] = useState<{
-    payment_session_id: string;
-  }>({ payment_session_id: "" });
   const { session } = useSession();
+  const [afterPayment, setAfterPayment] = useState(false);
 
   useEffect(() => {
-    load({ mode: "sandbox" });
     fetchCartItems();
   }, []);
 
@@ -68,6 +72,16 @@ export default function CheckoutPage() {
     const { data, error } = await client
       .from("cart")
       .select(`id, quantity, product_id, products (id, name, price, images)`);
+    if (data) setCart(data);
+    if (error) console.error("Error fetching cart items:", error);
+  };
+  const clearCartItems = async () => {
+    const client = createClerkSupabaseClient();
+
+    const { data, error } = await client
+      .from("cart")
+      .delete()
+      .eq("user_id", session?.user.id);
     if (data) setCart(data);
     if (error) console.error("Error fetching cart items:", error);
   };
@@ -97,25 +111,7 @@ export default function CheckoutPage() {
 
   const handleProceedToPayment = async () => {
     if (Object.values(shippingInfo).every((value) => value !== "")) {
-      try {
-        const { data } = await createSession(total);
-        setSessionData(data.data);
-        const orderId = data.data.order_id;
-        await addOrderToDatabase(orderId);
-        setStep(2);
-        toast({
-          title: "Order Created",
-          description: `Order ID: ${orderId}`,
-          variant: "default",
-        });
-      } catch (error) {
-        console.error("Error during checkout:", error);
-        toast({
-          title: "Checkout Error",
-          description: error.message,
-          variant: "destructive",
-        });
-      }
+      setStep(2);
     } else {
       toast({
         title: "Incomplete Information",
@@ -124,15 +120,124 @@ export default function CheckoutPage() {
       });
     }
   };
-
-  const createSession = async (orderAmount) => {
-    return axios.post("/api/session", {
-      order_amount: orderAmount,
-      customer_id: "devstudio_user",
-      customer_phone: shippingInfo.phone,
-      customer_name: `${shippingInfo.firstName} ${shippingInfo.lastName}`,
-      customer_email: shippingInfo.email,
+  function loadScript(src) {
+    return new Promise((resolve) => {
+      const script = document.createElement("script");
+      script.src = src;
+      script.onload = () => {
+        resolve(true);
+      };
+      script.onerror = () => {
+        resolve(false);
+      };
+      document.body.appendChild(script);
     });
+  }
+  const handleOpenPaymentGateway = async () => {
+    const Razorpayres = await loadScript(
+      "https://checkout.razorpay.com/v1/checkout.js"
+    );
+
+    if (!Razorpayres) {
+      alert("Razorpay SDK failed to load. Are you online?");
+      return;
+    }
+    if (!agreeToTerms) {
+      toast({
+        title: "Terms Agreement Required",
+        description: "Please agree to the terms.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const response = await fetch("/api/create-order", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          amount: total * 100, // Razorpay expects amount in paise
+          currency: "INR",
+          receipt: `receipt_${Date.now()}`,
+          notes: {},
+        }),
+      });
+
+      const order = await response.json();
+
+      const options = {
+        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+        amount: order.amount,
+        currency: order.currency,
+        name: "AIVORE",
+        description: "Purchase",
+        order_id: order.id,
+        handler: function (response) {
+          handlePaymentVerification(response);
+        },
+        prefill: {
+          name: `${shippingInfo.firstName} ${shippingInfo.lastName}`,
+          email: shippingInfo.email,
+          contact: shippingInfo.phone,
+        },
+        theme: {
+          color: "#F37254",
+        },
+      };
+
+      // const rzp = new Razorpay(options);
+      // rzp.open();
+      const paymentObject = new window.Razorpay(options);
+      paymentObject.open();
+    } catch (error) {
+      console.error("Error creating order:", error);
+      toast({
+        title: "Payment Error",
+        description: "Unable to initiate payment. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handlePaymentVerification = async (response) => {
+    setAfterPayment(true);
+    try {
+      const verificationResponse = await fetch("/api/verify-payment", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          razorpay_order_id: response.razorpay_order_id,
+          razorpay_payment_id: response.razorpay_payment_id,
+          razorpay_signature: response.razorpay_signature,
+        }),
+      });
+
+      const data = await verificationResponse.json();
+
+      if (data.status === "ok") {
+        await addOrderToDatabase(response.razorpay_order_id);
+        await clearCartItems();
+
+        router.push(`/paymentconfirm?order_id=${response.razorpay_order_id}`);
+      } else {
+        toast({
+          title: "Payment Verification Failed",
+          description: "Please contact support.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error("Error verifying payment:", error);
+      toast({
+        title: "Verification Error",
+        description: "Error verifying payment. Please contact support.",
+        variant: "destructive",
+      });
+    }
   };
 
   const addOrderToDatabase = async (orderId) => {
@@ -150,43 +255,16 @@ export default function CheckoutPage() {
     if (error) throw error;
   };
 
-  const handleOpenPaymentGateway = async () => {
-    if (!agreeToTerms) {
-      toast({
-        title: "Terms Agreement Required",
-        description: "Please agree to the terms.",
-        variant: "destructive",
-      });
-      return;
-    }
-    toast({
-      title: "Redirecting to Payment",
-      description: ``,
-    });
-    const cashfree = await load({ mode: "sandbox" });
-    cashfree
-      .checkout({
-        paymentSessionId: sessionData.payment_session_id,
-        redirectTarget: "_self",
-      })
-      .then((result) => {
-        if (result.error) console.log("Payment error:", result.error);
-        if (result.redirect) console.log("Payment redirected");
-        if (result.paymentDetails)
-          console.log(
-            "Payment completed:",
-            result.paymentDetails.paymentMessage
-          );
-      });
-  };
-
   const subtotal = cartItems.reduce(
     (total, item) => total + item.products.price * item.quantity,
     0
   );
-  const shipping = 500;
-  const total = subtotal + shipping;
 
+  const total = subtotal + (subtotal < 500 ? 60 : 0);
+
+  if (afterPayment) {
+    return <div>Processing Payment...</div>;
+  }
   return (
     <div className="min-h-screen bg-background text-foreground">
       <div className="container mx-auto px-4 py-8">
@@ -406,7 +484,7 @@ export default function CheckoutPage() {
                   </div>
                   <div className="flex justify-between">
                     <span>Shipping</span>
-                    <span>₹{shipping.toFixed(2)}</span>
+                    <span>₹{subtotal < 500 ? 60 : 0}</span>
                   </div>
                   <Separator />
                   <div className="flex justify-between font-bold">

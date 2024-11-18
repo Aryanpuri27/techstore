@@ -1,104 +1,3 @@
-// // import { AppSidebar } from "@/components/app-sidebar";
-// import Item from "@/components/item";
-// import { Button } from "@/components/ui/button";
-// // import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-// import { FilterIcon } from "lucide-react";
-// // import Image from "next/image";
-// import {
-//   Select,
-//   SelectContent,
-//   SelectItem,
-//   SelectTrigger,
-//   SelectValue,
-// } from "@/components/ui/select";
-
-// import React from "react";
-
-// function page() {
-//   return (
-//     <div className=" w-full min-h-screen flex gap-2 justify-start p-10 md:px-20">
-//       <div className="hidden  shadow-2xl shadow-slate-700 border-black h-fit  px-6 min-w-[250px]  md:flex flex-col gap-4 p-8 rounded-2xl ">
-//         <span className="flex gap-2 text-xl">
-//           <FilterIcon />
-//           Filter
-//         </span>
-//         <Option />
-//         <Option />
-//         <Option />
-//         <Option />
-//         <Option />
-//         <Option />
-
-//         <Button className="mt-6">Apply</Button>
-//       </div>
-//       {/* <SidebarProvider> */}
-//       {/* <AppSidebar /> */}
-//       <div className="   ">
-//         <div className="  text-4xl p-3 px-5 font-bold justify-between flex ">
-//           <h1>Page</h1>
-//           <div className="md:hidden">
-//             <Select>
-//               <SelectTrigger className="w-[180px]">
-//                 <SelectValue placeholder="Theme" />
-//               </SelectTrigger>
-//               <SelectContent>
-//                 <SelectItem value="light">Light</SelectItem>
-//                 <SelectItem value="dark">Dark</SelectItem>
-//                 <SelectItem value="system">System</SelectItem>
-//               </SelectContent>
-//             </Select>{" "}
-//           </div>
-//         </div>
-//         <div className="flex gap-7 p-4 flex-wrap justify-start ">
-//           <Item />
-//           <Item />
-//           <Item />
-//           <Item />
-//           <Item />
-//         </div>
-//       </div>
-//       {/* </SidebarProvider> */}
-//     </div>
-//   );
-// }
-
-// export default page;
-
-// function Option() {
-//   return (
-//     <>
-//       <div className="flex justify-between">
-//         <div className="flex gap-2 align-middle text-lg">
-//           <input type="checkbox" className="w-[18px]" /> option
-//         </div>
-//         <span className="text-md text-slate-700">(34)</span>
-//       </div>
-//     </>
-//   );
-// }
-
-// import { FilterSidebarComponent } from "@/components/components-filter-sidebar";
-// import { ProductGridComponent } from "@/components/components-product-grid";
-// import { Suspense } from "react";
-
-// export default function Page() {
-//   return (
-//     <div className="container mx-auto px-4 py-8">
-//       <h1 className="text-3xl font-bold mb-8">Product Showcase</h1>
-//       <div className="flex flex-col md:flex-row gap-8">
-//         <aside className="w-full md:w-1/4">
-//           <FilterSidebarComponent />
-//         </aside>
-//         <main className="w-full md:w-3/4">
-//           <Suspense fallback={<div>Loading products...</div>}>
-//             <ProductGridComponent />
-//           </Suspense>
-//         </main>
-//       </div>
-//     </div>
-//   );
-// }
-
 "use client";
 
 import { useState, useEffect } from "react";
@@ -128,101 +27,36 @@ import {
 } from "@/components/ui/sheet";
 import Link from "next/link";
 import Image from "next/image";
-import { useToast } from "@/hooks/use-toast";
+import { toast, useToast } from "@/hooks/use-toast";
 import { MotionDiv } from "@/components/type/motion";
-// import { addToCartAction } from "../ssr/actions";
 import { useSession } from "@clerk/nextjs";
 import { createClient } from "@supabase/supabase-js";
 
-// Mock data for products
-const products = [
-  {
-    id: 1,
-    name: "Custom Figurine",
-    category: "Figurines",
-    price: 29.99,
-    material: "PLA",
-    printTime: 3,
-    image: "/printedpart.jpg",
-  },
-  {
-    id: 2,
-    name: "Architectural Model",
-    category: "Models",
-    price: 99.99,
-    material: "Resin",
-    printTime: 8,
-    image: "/printedpart.jpg",
-  },
-  {
-    id: 3,
-    name: "Gear Set",
-    category: "Mechanical",
-    price: 39.99,
-    material: "ABS",
-    printTime: 5,
-    image: "/printedpart.jpg",
-  },
-  {
-    id: 4,
-    name: "Phone Case",
-    category: "Accessories",
-    price: 19.99,
-    material: "TPU",
-    printTime: 2,
-    image: "/printedpart.jpg",
-  },
-  {
-    id: 5,
-    name: "Vase",
-    category: "Home Decor",
-    price: 49.99,
-    material: "PETG",
-    printTime: 6,
-    image: "/printedpart.jpg",
-  },
-  {
-    id: 6,
-    name: "Drone Parts",
-    category: "Electronics",
-    price: 79.99,
-    material: "Nylon",
-    printTime: 4,
-    image: "/printedpart.jpg",
-  },
-];
-
-export default function ProjectPage() {
-  const [filteredProducts, setFilteredProducts] = useState(products);
+export default function ProductPage() {
+  const [products, setProducts] = useState([]);
+  const [filteredProducts, setFilteredProducts] = useState([]);
   const [categoryFilter, setCategoryFilter] = useState("All");
-  const [priceRange, setPriceRange] = useState([0, 100]);
+  const [priceRange, setPriceRange] = useState([0, 1000]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [sortBy, setSortBy] = useState<keyof (typeof products)[0]>("name");
+  const [sortBy, setSortBy] = useState("name");
   const [sortOrder, setSortOrder] = useState("asc");
   const [showFastPrintOnly, setShowFastPrintOnly] = useState(false);
   const [activeFilters, setActiveFilters] = useState<string[]>([]);
-
+  const [categories, setCategories] = useState(["All"]);
   const { session } = useSession();
+
   function createClerkSupabaseClient() {
     return createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_KEY!,
       {
         global: {
-          // Get the custom Supabase token from Clerk
           fetch: async (url, options = {}) => {
-            // The Clerk `session` object has the getToken() method
             const clerkToken = await session?.getToken({
-              // Pass the name of the JWT template you created in the Clerk Dashboard
-              // For this tutorial, you named it 'supabase'
               template: "supabase",
             });
-
-            // Insert the Clerk Supabase token into the headers
             const headers = new Headers((options as RequestInit).headers);
             headers.set("Authorization", `Bearer ${clerkToken}`);
-
-            // Call the default fetch
             return fetch(url, {
               ...options,
               headers,
@@ -232,13 +66,43 @@ export default function ProjectPage() {
       }
     );
   }
+  function createClerkSupabaseClientNonAuth() {
+    return createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_KEY!
+    );
+  }
 
   const client = createClerkSupabaseClient();
+  const nonAuthClient = createClerkSupabaseClientNonAuth();
 
-  const categories = [
-    "All",
-    ...new Set(products.map((product) => product.category)),
-  ];
+  useEffect(() => {
+    async function fetchProductDetails() {
+      try {
+        const { data, error } = await nonAuthClient
+          .from("products")
+          .select("*");
+        if (error) throw error;
+        setProducts(data);
+        setFilteredProducts(data);
+        const uniqueCategories = [
+          "All",
+          ...new Set(data.map((product) => product.category)),
+        ];
+        setCategories(uniqueCategories);
+        const maxPrice = Math.max(...data.map((product) => product.price));
+        setPriceRange([0, maxPrice]);
+      } catch (error) {
+        console.error("Error fetching product details:", error);
+        toast({
+          title: "Error",
+          description: "Failed to fetch product details.",
+          variant: "destructive",
+        });
+      }
+    }
+    fetchProductDetails();
+  }, []);
 
   useEffect(() => {
     handleFilter();
@@ -249,35 +113,36 @@ export default function ProjectPage() {
     sortBy,
     sortOrder,
     showFastPrintOnly,
+    products,
   ]);
 
   const handleFilter = () => {
-    const filtered = products.filter(
+    let filtered = products.filter(
       (product) =>
         (categoryFilter === "All" || product.category === categoryFilter) &&
         product.price >= priceRange[0] &&
         product.price <= priceRange[1] &&
         (product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
           product.category.toLowerCase().includes(searchTerm.toLowerCase())) &&
-        (!showFastPrintOnly || product.printTime <= 3)
+        (!showFastPrintOnly || product.print_time <= 3)
     );
 
     filtered.sort((a, b) => {
-      if (a[sortBy as keyof typeof a] < b[sortBy as keyof typeof b])
-        return sortOrder === "asc" ? -1 : 1;
-      if (a[sortBy as keyof typeof a] > b[sortBy as keyof typeof b])
-        return sortOrder === "asc" ? 1 : -1;
+      if (a[sortBy] < b[sortBy]) return sortOrder === "asc" ? -1 : 1;
+      if (a[sortBy] > b[sortBy]) return sortOrder === "asc" ? 1 : -1;
       return 0;
     });
 
     setFilteredProducts(filtered);
 
-    // Update active filters
     const newActiveFilters = [];
     if (categoryFilter !== "All")
       newActiveFilters.push(`Category: ${categoryFilter}`);
-    if (priceRange[0] > 0 || priceRange[1] < 100)
-      newActiveFilters.push(`Price: $${priceRange[0]} - $${priceRange[1]}`);
+    if (
+      priceRange[0] > 0 ||
+      priceRange[1] < Math.max(...products.map((p) => p.price))
+    )
+      newActiveFilters.push(`Price: Rs.${priceRange[0]} - Rs.${priceRange[1]}`);
     if (searchTerm) newActiveFilters.push(`Search: ${searchTerm}`);
     if (showFastPrintOnly) newActiveFilters.push("Fast Print Only");
     setActiveFilters(newActiveFilters);
@@ -285,7 +150,7 @@ export default function ProjectPage() {
 
   const clearFilters = () => {
     setCategoryFilter("All");
-    setPriceRange([0, 100]);
+    setPriceRange([0, Math.max(...products.map((p) => p.price))]);
     setSearchTerm("");
     setShowFastPrintOnly(false);
     setSortBy("name");
@@ -299,7 +164,6 @@ export default function ProjectPage() {
       </h1>
 
       <div className="flex flex-col lg:flex-row gap-8">
-        {/* Filters for desktop */}
         <Card className="p-6 hidden lg:block w-1/4">
           <FiltersContent
             categoryFilter={categoryFilter}
@@ -316,10 +180,10 @@ export default function ProjectPage() {
             setShowFastPrintOnly={setShowFastPrintOnly}
             categories={categories}
             clearFilters={clearFilters}
+            maxPrice={Math.max(...products.map((p) => p.price))}
           />
         </Card>
 
-        {/* Filters for mobile */}
         <div className="lg:hidden mb-4">
           <Sheet>
             <SheetTrigger asChild>
@@ -350,28 +214,30 @@ export default function ProjectPage() {
                   setShowFastPrintOnly={setShowFastPrintOnly}
                   categories={categories}
                   clearFilters={clearFilters}
+                  maxPrice={Math.max(...products.map((p) => p.price))}
                 />
               </div>
             </SheetContent>
           </Sheet>
         </div>
 
-        {/* Product Grid */}
         <div className="lg:w-3/4">
-          {/* Active filters */}
           <div className="mb-4 flex flex-wrap gap-2">
             {activeFilters.map((filter, index) => (
               <Badge key={index} variant="secondary" className="text-sm">
                 {filter}
                 <button
                   onClick={() => {
-                    // Remove this filter
-                    // if (filter.startsWith("Category:"))
-                    //   setCategoryFilter("All");
-                    // if (filter.startsWith("Price:")) setPriceRange([0, 100]);
-                    // if (filter.startsWith("Search:")) setSearchTerm("");
-                    // if (filter === "Fast Print Only")
-                    setShowFastPrintOnly(false);
+                    if (filter.startsWith("Category:"))
+                      setCategoryFilter("All");
+                    if (filter.startsWith("Price:"))
+                      setPriceRange([
+                        0,
+                        Math.max(...products.map((p) => p.price)),
+                      ]);
+                    if (filter.startsWith("Search:")) setSearchTerm("");
+                    if (filter === "Fast Print Only")
+                      setShowFastPrintOnly(false);
                   }}
                   className="ml-2 hover:text-destructive"
                 >
@@ -426,21 +292,7 @@ function FiltersContent({
   setShowFastPrintOnly,
   categories,
   clearFilters,
-}: {
-  categoryFilter: string;
-  setCategoryFilter: any;
-  priceRange: any;
-  setPriceRange: any;
-  searchTerm: string;
-  setSearchTerm: any;
-  sortBy: string;
-  setSortBy: any;
-  sortOrder: string;
-  setSortOrder: any;
-  showFastPrintOnly: boolean;
-  setShowFastPrintOnly: any;
-  categories: any;
-  clearFilters: any;
+  maxPrice,
 }) {
   return (
     <div className="space-y-4">
@@ -465,7 +317,7 @@ function FiltersContent({
         <Slider
           id="price-range"
           min={0}
-          max={100}
+          max={maxPrice}
           step={1}
           value={priceRange}
           onValueChange={setPriceRange}
@@ -497,7 +349,8 @@ function FiltersContent({
           <SelectContent>
             <SelectItem value="name">Name</SelectItem>
             <SelectItem value="price">Price</SelectItem>
-            <SelectItem value="printTime">Print Time</SelectItem>
+            <SelectItem value="print_time">Print Time</SelectItem>
+            <SelectItem value="category">Category</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -532,45 +385,12 @@ function FiltersContent({
 }
 
 function ProductCard({ product, client }) {
-  // const { session } = useSession();
-
-  // // Create a custom supabase client that injects the Clerk Supabase token into the request headers
-  // function createClerkSupabaseClient() {
-  //   return createClient(
-  //     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  //     process.env.NEXT_PUBLIC_SUPABASE_KEY!,
-  //     {
-  //       global: {
-  //         // Get the custom Supabase token from Clerk
-  //         fetch: async (url, options = {}) => {
-  //           // The Clerk `session` object has the getToken() method
-  //           const clerkToken = await session?.getToken({
-  //             // Pass the name of the JWT template you created in the Clerk Dashboard
-  //             // For this tutorial, you named it 'supabase'
-  //             template: "supabase",
-  //           });
-
-  //           // Insert the Clerk Supabase token into the headers
-  //           const headers = new Headers(options?.headers);
-  //           headers.set("Authorization", `Bearer ${clerkToken}`);
-
-  //           // Call the default fetch
-  //           return fetch(url, {
-  //             ...options,
-  //             headers,
-  //           });
-  //         },
-  //       },
-  //     }
-  //   );
-  // }
-  // const client = createClerkSupabaseClient();
   const [quantity, setQuantity] = useState(1);
   const { toast } = useToast();
   const incrementQuantity = () => setQuantity((prev) => prev + 1);
   const decrementQuantity = () => setQuantity((prev) => Math.max(1, prev - 1));
+
   async function addToCart(product, quantity) {
-    // addToCartAction(product, quantity, product.price);
     try {
       const response = await client.from("cart").insert({
         product_id: product.id,
@@ -578,16 +398,22 @@ function ProductCard({ product, client }) {
         unit_price: product.price,
       });
 
-      console.log("Task successfully added!", response);
-    } catch (error: any) {
-      console.error("Error adding task:", error.message);
-      throw new Error("Failed to add task");
+      if (response.error) throw response.error;
+
+      toast({
+        title: "Added to Cart",
+        description: `${quantity} ${product.name} added to cart`,
+      });
+    } catch (error) {
+      console.error("Error adding product to cart:", error);
+      toast({
+        title: "Error",
+        description: "Failed to add product to cart",
+        variant: "destructive",
+      });
     }
-    toast({
-      title: "Added to Cart",
-      description: `${quantity} ${product.name} added to cart`,
-    });
   }
+
   return (
     <motion.div
       layout
@@ -599,7 +425,7 @@ function ProductCard({ product, client }) {
       <Card className="overflow-hidden">
         <Link href={`/products/${product.id}`}>
           <Image
-            src={product.image}
+            src={product.images[0] || "/placeholder.jpg"}
             alt={product.name}
             width={300}
             height={200}
@@ -617,7 +443,7 @@ function ProductCard({ product, client }) {
             Material: {product.material}
           </p>
           <p className="text-muted-foreground mb-2">
-            Print Time: {product.printTime} hours
+            Print Time: {product.print_time} hours
           </p>
           <p className="text-lg font-bold text-foreground">
             Rs.{product.price.toFixed(2)}

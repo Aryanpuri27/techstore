@@ -80,6 +80,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import ImageCarousel from "@/components/image-corosul";
 import ReviewSection from "@/components/ReviewSection";
+import { createClerkSupabaseClientSsr } from "@/app/ssr/client";
+import { toast } from "@/hooks/use-toast";
+import AddToCartButton from "./addToCartBtn";
 // import Footer from "@/components/Footer";
 // import ReviewSection from "./ReviewSection";
 // import ImageCarousel from "./ImageCarousel";
@@ -105,7 +108,50 @@ const product = {
   ],
 };
 
-export default function ProductPage() {
+export default async function ProductPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const id = (await params).id;
+
+  const client = await createClerkSupabaseClientSsr();
+  const { data: product, error } = await client
+    .from("products")
+    .select("*")
+    .eq("id", id)
+    .single();
+
+  if (error) {
+    console.error(error);
+    return <div>Error loading product</div>;
+  }
+  console.log(product);
+  async function addToCart(product, quantity) {
+    "use client";
+    try {
+      const response = await client.from("cart").insert({
+        product_id: product.id,
+        quantity: quantity,
+        unit_price: product.price,
+      });
+
+      if (response.error) throw response.error;
+
+      toast({
+        title: "Added to Cart",
+        description: `${quantity} ${product.name} added to cart`,
+      });
+    } catch (error) {
+      console.error("Error adding product to cart:", error);
+      toast({
+        title: "Error",
+        description: "Failed to add product to cart",
+        variant: "destructive",
+      });
+    }
+  }
+
   return (
     <div className="min-h-screen flex flex-col">
       <main className="flex-grow">
@@ -129,12 +175,12 @@ export default function ProductPage() {
                   ))}
                 </div>
                 <span className="ml-2 text-sm text-gray-600">
-                  ({product.reviewCount} reviews)
+                  ({product.review_count} reviews)
                 </span>
               </div>
               <div className="mb-4">
                 <span className="text-3xl font-bold text-primary">
-                  Rs.{product.discountedPrice.toFixed(2)}
+                  Rs.{product.discounted_price.toFixed(2)}
                 </span>
                 <span className="ml-2 text-xl text-gray-500 line-through">
                   Rs.{product.price.toFixed(2)}
@@ -142,7 +188,7 @@ export default function ProductPage() {
                 <Badge className="ml-2 bg-green-500">
                   Save{" "}
                   {(
-                    ((product.price - product.discountedPrice) /
+                    ((product.price - product.discounted_price) /
                       product.price) *
                     100
                   ).toFixed(0)}
@@ -151,14 +197,19 @@ export default function ProductPage() {
               </div>
               <p className="text-gray-700 mb-6">{product.description}</p>
               <div className="flex space-x-4 mb-8">
-                <Button size="lg">Buy Now</Button>
-                <Button size="lg" variant="outline">
+                {/* <Button size="lg">Buy Now</Button> */}
+                {/* <Button
+                  size="lg"
+                  variant="outline"
+                  onClick={() => addToCart(product, 1)}
+                >
                   <ShoppingCart className="mr-2 h-4 w-4" /> Add to Cart
-                </Button>
-                <Button size="icon" variant="outline">
+                </Button> */}
+                <AddToCartButton product={product} />
+                {/* <Button size="icon" variant="outline">
                   <Heart className="h-4 w-4" />
                   <span className="sr-only">Add to wishlist</span>
-                </Button>
+                </Button> */}
               </div>
 
               <Tabs defaultValue="specifications">
@@ -188,9 +239,9 @@ export default function ProductPage() {
             </div>
           </div>
 
-          <Suspense fallback={<div>Loading reviews...</div>}>
+          {/* <Suspense fallback={<div>Loading reviews...</div>}>
             <ReviewSection productId={product.id} />
-          </Suspense>
+          </Suspense> */}
         </div>
       </main>
     </div>

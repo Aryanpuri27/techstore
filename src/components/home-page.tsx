@@ -17,6 +17,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import Link from "next/link";
 import Image from "next/image";
 import { MotionDiv } from "./type/motion";
+import { redirect } from "next/navigation";
 
 export default function HomePage() {
   const [isVisible, setIsVisible] = useState(false);
@@ -54,12 +55,25 @@ export default function HomePage() {
               precision, innovation, and cutting-edge technology.
             </p>
             <div className="flex flex-col sm:flex-row justify-center gap-4">
-              <Button size="lg" className="text-lg">
-                Start Your Project
+              <Button
+                size="lg"
+                className="text-lg"
+                onClick={() => {
+                  redirect("/custom");
+                }}
+              >
+                Get Custom 3D Print
                 <ChevronRight className="ml-2 h-5 w-5" />
               </Button>
-              <Button size="lg" variant="outline" className="text-lg">
-                Explore Services
+              <Button
+                size="lg"
+                variant="outline"
+                className="text-lg"
+                onClick={() => {
+                  redirect("/products");
+                }}
+              >
+                Explore Products
               </Button>
             </div>
           </MotionDiv>
@@ -296,13 +310,20 @@ export default function HomePage() {
             perfect 3D printing solution for you. Let's turn your vision into
             reality!
           </p>
-          <Button size="lg" variant="secondary" className="text-lg">
-            Get a Free Quote
+          <Button
+            size="lg"
+            variant="secondary"
+            className="text-lg"
+            onClick={() => {
+              redirect("/custom");
+            }}
+          >
+            Create Your 3D Print
           </Button>
         </div>
       </section>
 
-      {/* Testimonials Section */}
+      {/* Testimonials Section
       <section className="py-20">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-bold text-center mb-12 text-foreground">
@@ -366,7 +387,7 @@ export default function HomePage() {
             ))}
           </div>
         </div>
-      </section>
+      </section> */}
     </div>
   );
 }

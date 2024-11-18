@@ -1,4 +1,4 @@
-import { notFound, useSearchParams } from "next/navigation";
+import { notFound } from "next/navigation";
 import Image from "next/image";
 import { CheckCircle2, Package, Truck } from "lucide-react";
 
@@ -12,8 +12,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Separator } from "@/components/ui/separator";
-import { createClient } from "@supabase/supabase-js";
-import { useSession } from "@clerk/nextjs";
+
 import { createClerkSupabaseClientSsr } from "../ssr/client";
 
 async function getOrderDetails(orderId: string) {
@@ -40,12 +39,16 @@ type Props = {
 };
 export default async function OrderSuccessPage({ searchParams }: Props) {
   const sp = await searchParams;
-  const orderId = sp.orderId;
+  console.log("sp", sp);
+  const orderId = sp.order_id;
+  console.log(orderId);
   if (!orderId) {
+    console.log("No order ID found");
     notFound();
   }
 
   const orderDetails = await getOrderDetails(orderId);
+  console.log(orderDetails);
 
   if (!orderDetails) {
     notFound();
@@ -66,7 +69,7 @@ export default async function OrderSuccessPage({ searchParams }: Props) {
           <div className="flex flex-col items-center justify-center space-y-4 text-center">
             <div className="relative w-32 h-32">
               <Image
-                src="/placeholder.svg?height=128&width=128"
+                src="/confirm-badge.png"
                 alt="Order Success"
                 layout="fill"
                 className="animate-bounce"
@@ -163,7 +166,7 @@ export default async function OrderSuccessPage({ searchParams }: Props) {
               </div>
             </div>
 
-            <div className="flex justify-center">
+            {/* <div className="flex justify-center">
               <div className="relative w-64 h-64">
                 <Image
                   src="/placeholder.svg?height=256&width=256"
@@ -173,6 +176,7 @@ export default async function OrderSuccessPage({ searchParams }: Props) {
                 />
               </div>
             </div>
+          </div> */}
           </div>
         </CardContent>
       </Card>

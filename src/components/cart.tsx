@@ -208,6 +208,10 @@ function ShoppingCartCom() {
         0
       )
     : 0;
+  function handelCheckout() {
+    setIsCartOpen(false);
+    redirect("/checkout");
+  }
 
   return (
     <div>
@@ -288,7 +292,7 @@ function ShoppingCartCom() {
               </div>
               <Button
                 className="w-full"
-                onClick={() => redirect("/checkout")}
+                onClick={handelCheckout}
                 // formAction={"/checkout"}
               >
                 Checkout
