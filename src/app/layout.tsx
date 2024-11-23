@@ -37,7 +37,7 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ClerkProvider>
+    <ClerkProvider proxyUrl="https://aivora.in/__clerk">
       <html lang="en">
         <body
           className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background text-foreground`}
