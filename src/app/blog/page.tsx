@@ -4,18 +4,27 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 export default function Component() {
   // You can replace these with your actual YouTube video IDs
   const videoIds = [
-    "dQw4w9WgXcQ",
-    "9bZkp7q19f0",
-    "JGwWNGJdvx8",
-    "kJQP7kiw5Fk",
-    "OPf0YbXqDm0",
-    "CevxZvSJLk8",
+    "ryLH9qRIk1o",
+    "yvqANkgRNrM",
+    "w4KZunN1ntc&t=129s",
+    "jyIcC9X6CF8",
+    "26kVdehOJms&t=402s",
+    "LqwlJ_fMK_Q",
+    "_f6Sld1E-dU",
+    "M5bxe7ogaCQ",
+    "Ec6Gfbhfyys",
+    "DVM7VddDGP4",
+    "bZm5vPhTGE8",
+    "_HGBCzYyu1Y,",
+    "lbFKDNOYW3w&t=4s",
+    "mlUA2lnmi-g",
+    "BL_15zvGPiE&t=170s",
   ];
 
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-4xl font-bold text-center mb-4 text-primary">
-        Our 3D Printing Videos
+        Our Videos
       </h1>
       <p className="text-center text-lg mb-8 text-secondary">
         Check out our latest 3D printing tutorials, product showcases, and

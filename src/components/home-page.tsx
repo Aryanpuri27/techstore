@@ -47,7 +47,7 @@ export default function HomePage() {
             transition={{ duration: 0.8, delay: 0.5 }}
             className="text-center"
           >
-            <h1 className="text-4xl md:text-6xl font-bold  bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent mb-6">
+            <h1 className="text-4xl md:text-6xl font-bold  bg-gradient-to-r  text-primary mb-6">
               Revolutionize Your Ideas with 3D Printing
             </h1>
             <p className="text-xl md:text-2xl text-muted-foreground mb-8 max-w-2xl mx-auto">
@@ -264,7 +264,7 @@ export default function HomePage() {
       </section>
 
       {/* Gallery Section */}
-      <section className="py-20 bg-muted/30">
+      {/* <section className="py-20 bg-muted/30">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-bold text-center mb-12 text-foreground">
             Our Recent Projects
@@ -297,7 +297,7 @@ export default function HomePage() {
             </Button>
           </div>
         </div>
-      </section>
+      </section> */}
 
       {/* CTA Section */}
       <section className="py-20 bg-primary text-primary-foreground">

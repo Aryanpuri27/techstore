@@ -25,7 +25,7 @@
 //               products
 //             </li>
 //             <li className="text-secondary-foreground cursor-pointer hover:text-primary">
-//               youtube
+//               blog
 //             </li>
 //             <li className="text-secondary-foreground cursor-pointer hover:text-primary">
 //               about
@@ -48,8 +48,8 @@
 //               <a href="/product">
 //                 <DropdownMenuItem className="p-2">Product</DropdownMenuItem>
 //               </a>
-//               <a href="/youtube">
-//                 <DropdownMenuItem className="p-2">Youtube</DropdownMenuItem>
+//               <a href="/blog">
+//                 <DropdownMenuItem className="p-2">blog</DropdownMenuItem>
 //               </a>
 //               <a href="/about">
 //                 <DropdownMenuItem className="p-2">About</DropdownMenuItem>
@@ -103,21 +103,8 @@ export default function Header() {
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
           <Link href="/" className="flex items-center space-x-2">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="h-6 w-6"
-            >
-              <circle cx="12" cy="12" r="10" />
-              <line x1="2" y1="12" x2="22" y2="12" />
-              <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
-            </svg>
-            <span className="text-xl font-bold">AIVore</span>
+            <img src="/logo.png" alt="logo" className="h-8 w-8 " />
+            <span className="text-xl font-bold">AIVora</span>
           </Link>
 
           <nav className="hidden md:flex space-x-4">
@@ -136,11 +123,8 @@ export default function Header() {
             >
               Custom
             </Link>
-            <Link
-              href="/youtube"
-              className="text-sm font-medium hover:underline"
-            >
-              youtube
+            <Link href="/blog" className="text-sm font-medium hover:underline">
+              blog
             </Link>
             <Link href="/about" className="text-sm font-medium hover:underline">
               About
@@ -196,7 +180,7 @@ export default function Header() {
               <ShoppingCartCom />
               <span className="sr-only">Cart</span>
             </Button>
-            <ModeToggle />
+            {/* <ModeToggle /> */}
             <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
               <SheetTrigger asChild>
                 <Button variant="ghost" size="icon" className="md:hidden">
@@ -219,6 +203,20 @@ export default function Header() {
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     Products
+                  </Link>
+                  <Link
+                    href="/custom"
+                    className="text-sm font-medium hover:underline"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    Custom
+                  </Link>
+                  <Link
+                    href="/blog"
+                    className="text-sm font-medium hover:underline"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    blog
                   </Link>
                   <Link
                     href="/about"

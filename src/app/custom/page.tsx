@@ -31,6 +31,10 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { createClient } from "@supabase/supabase-js";
+import { useSession } from "@clerk/nextjs";
+
+// Initialize Supabase client
 
 export default function CustomOrderForm() {
   const [file, setFile] = useState<File | null>(null);
@@ -47,10 +51,34 @@ export default function CustomOrderForm() {
     "idle" | "success" | "error"
   >("idle");
 
+  // New state variables for contact details
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
+  const [address, setAddress] = useState("");
+  const { session } = useSession();
+  const createClerkSupabaseClient = () => {
+    return createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_KEY!,
+      {
+        global: {
+          fetch: async (url, options = {}) => {
+            const clerkToken = await session?.getToken({
+              template: "supabase",
+            });
+            const headers = new Headers((options as RequestInit).headers);
+            headers.set("Authorization", `Bearer ${clerkToken}`);
+            return fetch(url, { ...options, headers });
+          },
+        },
+      }
+    );
+  };
+  const supabase = createClerkSupabaseClient();
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
       setFile(event.target.files[0]);
-      //   setActiveTab("settings");
     }
   };
 
@@ -59,10 +87,60 @@ export default function CustomOrderForm() {
     setIsSubmitting(true);
     setSubmitStatus("idle");
 
-    setTimeout(() => {
-      setIsSubmitting(false);
+    try {
+      if (!file) {
+        throw new Error("No file selected");
+      }
+
+      // Upload file to Supabase Storage
+      const fileExt = file.name.split(".").pop();
+      const fileName = `${Date.now()}.${fileExt}`;
+      const { data: fileData, error: uploadError } = await supabase.storage
+        .from("3d-models")
+        .upload(fileName, file);
+
+      if (uploadError) {
+        throw uploadError;
+      }
+
+      // Get the public URL of the uploaded file
+      const {
+        data: { publicUrl },
+      } = supabase.storage.from("3d-models").getPublicUrl(fileName);
+
+      // Insert order data into Supabase table
+      const { data: orderData, error: insertError } = await supabase
+        .from("custom_orders")
+        .insert({
+          file_name: file.name,
+          file_url: publicUrl,
+          units,
+          rotation_x: rotation.x,
+          rotation_y: rotation.y,
+          rotation_z: rotation.z,
+          print_quality: printerQuality,
+          material,
+          infill,
+          quantity: parseInt(quantity),
+          notes,
+          name,
+          phone,
+          email,
+          address,
+          status: "submitted",
+        });
+
+      if (insertError) {
+        throw insertError;
+      }
+
       setSubmitStatus("success");
-    }, 2000);
+    } catch (error) {
+      console.error("Error submitting order:", error);
+      setSubmitStatus("error");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -73,14 +151,22 @@ export default function CustomOrderForm() {
 
       <form onSubmit={handleSubmit} className="space-y-8 max-w-3xl mx-auto">
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="upload">Upload Model</TabsTrigger>
             <TabsTrigger value="settings" disabled={!file}>
               Print Settings
             </TabsTrigger>
             <TabsTrigger
-              value="review"
+              value="contact"
               disabled={!file || !material || !printerQuality}
+            >
+              Contact Details
+            </TabsTrigger>
+            <TabsTrigger
+              value="review"
+              disabled={
+                !file || !material || !printerQuality || !name || !email
+              }
             >
               Review Order
             </TabsTrigger>
@@ -364,8 +450,77 @@ export default function CustomOrderForm() {
                   Back to Upload
                 </Button>
                 <Button
-                  onClick={() => setActiveTab("review")}
+                  onClick={() => setActiveTab("contact")}
                   disabled={!material || !printerQuality}
+                >
+                  Continue to Contact Details
+                </Button>
+              </CardFooter>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="contact">
+            <Card>
+              <CardHeader>
+                <CardTitle>Contact Details</CardTitle>
+                <CardDescription>
+                  Please provide your contact information for this order
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="name">Full Name</Label>
+                  <Input
+                    id="name"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="John Doe"
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="email">Email Address</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="john.doe@example.com"
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="phone">Phone Number</Label>
+                  <Input
+                    id="phone"
+                    type="tel"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    placeholder="+1 (555) 123-4567"
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="address">Shipping Address</Label>
+                  <Textarea
+                    id="address"
+                    value={address}
+                    onChange={(e) => setAddress(e.target.value)}
+                    placeholder="123 Main St, Anytown, AN 12345"
+                    required
+                  />
+                </div>
+              </CardContent>
+              <CardFooter className="flex justify-between">
+                <Button
+                  variant="outline"
+                  onClick={() => setActiveTab("settings")}
+                >
+                  Back to Settings
+                </Button>
+                <Button
+                  onClick={() => setActiveTab("review")}
+                  disabled={!name || !email || !phone || !address}
                 >
                   Continue to Review
                 </Button>
@@ -412,6 +567,21 @@ export default function CustomOrderForm() {
                     </p>
                   </div>
                 </div>
+                <div>
+                  <h3 className="font-semibold mb-2">Contact Information</h3>
+                  <p>
+                    <strong>Name:</strong> {name}
+                  </p>
+                  <p>
+                    <strong>Email:</strong> {email}
+                  </p>
+                  <p>
+                    <strong>Phone:</strong> {phone}
+                  </p>
+                  <p>
+                    <strong>Address:</strong> {address}
+                  </p>
+                </div>
                 {notes && (
                   <div>
                     <h3 className="font-semibold mb-2">Additional Notes</h3>
@@ -422,9 +592,9 @@ export default function CustomOrderForm() {
               <CardFooter className="flex justify-between">
                 <Button
                   variant="outline"
-                  onClick={() => setActiveTab("settings")}
+                  onClick={() => setActiveTab("contact")}
                 >
-                  Back to Settings
+                  Back to Contact Details
                 </Button>
                 <Button type="submit" disabled={isSubmitting}>
                   {isSubmitting ? "Submitting..." : "Place Order"}
