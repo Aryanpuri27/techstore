@@ -8,7 +8,7 @@ export default function Footer() {
           <div>
             <h3 className="font-semibold mb-4">About Us</h3>
             <p className="text-sm text-gray-600">
-              TechStore is your one-stop shop for all things tech. We offer the
+              Aivora is your one-stop shop for all things tech. We offer the
               latest gadgets and accessories at competitive prices.
             </p>
           </div>

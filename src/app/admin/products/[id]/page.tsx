@@ -34,6 +34,8 @@ export default function ProductForm({ params }) {
     description: "",
     images: [],
     specifications: [],
+    material: "",
+    print_time: "",
   });
   const [categories, setCategories] = useState([]);
   const [newSpec, setNewSpec] = useState({ name: "", value: "" });
@@ -250,6 +252,33 @@ export default function ProductForm({ params }) {
                     name="discounted_price"
                     type="number"
                     value={product.discounted_price}
+                    onChange={handleChange}
+                    className="text-lg p-3"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="material" className="text-lg">
+                    Material
+                  </Label>
+                  <Input
+                    id="material"
+                    name="material"
+                    type="text"
+                    value={product.material}
+                    onChange={handleChange}
+                    required
+                    className="text-lg p-3"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="print_time" className="text-lg">
+                    Print Time
+                  </Label>
+                  <Input
+                    id="print_time"
+                    name="print_time"
+                    type="number"
+                    value={product.print_time}
                     onChange={handleChange}
                     className="text-lg p-3"
                   />
