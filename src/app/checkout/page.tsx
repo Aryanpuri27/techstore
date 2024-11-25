@@ -221,6 +221,7 @@ export default function CheckoutPage() {
       if (data.status === "ok") {
         await addOrderToDatabase(response.razorpay_order_id);
         await clearCartItems();
+        await sendMail(response.razorpay_order_id);
 
         router.push(`/paymentconfirm?order_id=${response.razorpay_order_id}`);
       } else {
@@ -235,6 +236,50 @@ export default function CheckoutPage() {
       toast({
         title: "Verification Error",
         description: "Error verifying payment. Please contact support.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const sendMail = async (id) => {
+    // const { customerName, customerEmail, orderNumber, orderDate } =
+    //   orderDetails;
+    // const { subtotal, shipping, tax, total, shippingAddress } = orderDetails;
+    const body = {
+      customerName: `${shippingInfo.firstName} ${shippingInfo.lastName}`,
+      customerEmail: shippingInfo.email,
+      orderNumber: id,
+      orderDate: Date.now(),
+      orderItems: cartItems,
+      subtotal,
+      shipping: subtotal < 500 ? 60 : 0,
+      tax: 0,
+      total,
+      shippingAddress: {
+        street: shippingInfo.address,
+        city: shippingInfo.city,
+        country: shippingInfo.country,
+        zipCode: shippingInfo.zipCode,
+        state: shippingInfo.state,
+      },
+    };
+    const response = await fetch("/api/sendmail", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+    });
+    if (response.ok) {
+      toast({
+        title: "Order Confirmation",
+        description: "Order confirmation email sent successfully.",
+        variant: "default",
+      });
+    } else {
+      toast({
+        title: "Email Error",
+        description: "Failed to send order confirmation email.",
         variant: "destructive",
       });
     }

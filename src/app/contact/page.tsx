@@ -55,13 +55,13 @@ export default function ContactPage() {
               </div>
               <div className="flex items-center">
                 <Mail className="w-5 h-5 mr-2 text-primary" />
-                <span className="text-foreground">anishbasu95@gmail.com</span>
+                <span className="text-foreground">aivora.help@gmail.com</span>
               </div>
               <div className="flex items-center">
                 <MapPin className="w-5 h-5 mr-2 text-primary" />
                 <span className="text-foreground">
-                  SunainabasuKunj Laxmivihar Deoghar 814112, Deoghar, Jharkhand,
-                  PIN: 814112
+                  Lovely Professional University, Jalandhar - Delhi G.T. Road,
+                  Phagwara, Punjab (India) - 144411
                 </span>
               </div>
             </div>

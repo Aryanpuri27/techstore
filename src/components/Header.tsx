@@ -124,7 +124,7 @@ export default function Header() {
               Custom
             </Link>
             <Link href="/blog" className="text-sm font-medium hover:underline">
-              blog
+              Blogs
             </Link>
             <Link href="/about" className="text-sm font-medium hover:underline">
               About
@@ -216,7 +216,7 @@ export default function Header() {
                     className="text-sm font-medium hover:underline"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
-                    blog
+                    Blogs
                   </Link>
                   <Link
                     href="/about"

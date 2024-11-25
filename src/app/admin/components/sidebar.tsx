@@ -26,13 +26,13 @@ export function Sidebar() {
           <ShoppingBag className="w-5 h-5" />
           <span>Orders</span>
         </Link>
-        {/* <Link
-          href="/admin/settings"
+        <Link
+          href="/admin/category"
           className="flex items-center space-x-2 p-2 hover:bg-gray-200 rounded"
         >
           <Settings className="w-5 h-5" />
-          <span>Settings</span>
-        </Link> */}
+          <span>Category</span>
+        </Link>
       </nav>
     </div>
   );

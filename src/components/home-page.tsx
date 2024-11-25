@@ -18,6 +18,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { MotionDiv } from "./type/motion";
 import { redirect } from "next/navigation";
+import { AchievementShowcase } from "./acchivement";
 
 export default function HomePage() {
   const [isVisible, setIsVisible] = useState(false);
@@ -298,6 +299,7 @@ export default function HomePage() {
           </div>
         </div>
       </section> */}
+      <AchievementShowcase />
 
       {/* CTA Section */}
       <section className="py-20 bg-primary text-primary-foreground">

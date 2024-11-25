@@ -60,7 +60,7 @@ export default async function OrderSuccessPage({ searchParams }: Props) {
     (sum, item) => sum + item.price * item.quantity,
     0
   );
-  const total = subtotal + 500;
+  const total = subtotal + (subtotal < 500 ? 60 : 0);
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -157,7 +157,7 @@ export default async function OrderSuccessPage({ searchParams }: Props) {
               </div>
               <div className="flex justify-between">
                 <span>Shipping</span>
-                <span>₹{500}</span>
+                <span>₹{subtotal < 500 ? 60 : 0}</span>
               </div>
               <Separator />
               <div className="flex justify-between font-bold text-lg">

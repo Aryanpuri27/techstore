@@ -92,7 +92,19 @@ export default async function OrdersPage() {
             <div className="mt-4">
               <h3 className="font-semibold mb-2">Shipping Information</h3>
               <pre className="bg-muted p-2 rounded-md overflow-x-auto">
-                {JSON.stringify(order.shippingInfo, null, 2)}
+                {/* {JSON.stringify(order.shippingInfo, null, 2)} */}
+                {`${order.shippingInfo.firstName} ${order.shippingInfo.lastName}`}
+                <br />
+                {` ${order.shippingInfo.address} ${order.shippingInfo.city},`}
+                <br />
+                {` ${order.shippingInfo.state} ${order.shippingInfo.zipCode} `}
+                <br />
+                {` ${order.shippingInfo.country}`}
+                <br />
+                {` Email: ${order.shippingInfo.email} `}
+                <br />
+                {` Phone: ${order.shippingInfo.phone}`}
+                <br />
               </pre>
             </div>
           </CardContent>

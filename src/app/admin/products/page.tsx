@@ -95,6 +95,14 @@ export default function ProductsPage() {
     setCurrentPage(page);
   }
 
+  function handelDelete(id) {
+    return async () => {
+      const { error } = await client.from("products").delete().eq("id", id);
+      if (error) console.error("Error deleting product:", error);
+      else fetchProducts();
+    };
+  }
+
   return (
     <div className="space-y-6">
       <Card className="shadow-lg">
@@ -163,7 +171,10 @@ export default function ProductsPage() {
                             <Edit className="mr-2 h-4 w-4" /> Edit
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />
-                          <DropdownMenuItem className="text-red-600">
+                          <DropdownMenuItem
+                            className="text-red-600"
+                            onClick={handelDelete(product.id)}
+                          >
                             <Trash className="mr-2 h-4 w-4" /> Delete
                           </DropdownMenuItem>
                         </DropdownMenuContent>
