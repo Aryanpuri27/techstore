@@ -29,13 +29,15 @@ export default function ProductForm({ params }) {
   const [product, setProduct] = useState({
     name: "",
     category: "",
-    price: "",
-    discounted_price: "",
+    price: 0,
+    discounted_price: 0,
     description: "",
     images: [],
     specifications: [],
     material: "",
     print_time: "",
+    rating: 1,
+    review_count: 0,
   });
   const [categories, setCategories] = useState([]);
   const [newSpec, setNewSpec] = useState({ name: "", value: "" });
@@ -279,6 +281,34 @@ export default function ProductForm({ params }) {
                     name="print_time"
                     type="number"
                     value={product.print_time}
+                    onChange={handleChange}
+                    className="text-lg p-3"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="material" className="text-lg">
+                    {" "}
+                    Rating
+                  </Label>
+                  <Input
+                    id="rating"
+                    name="rating"
+                    type="number"
+                    value={product.rating}
+                    onChange={handleChange}
+                    required
+                    className="text-lg p-3"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="print_time" className="text-lg">
+                    Review Count
+                  </Label>
+                  <Input
+                    id="review_count"
+                    name="review_count"
+                    type="number"
+                    value={product.review_count}
                     onChange={handleChange}
                     className="text-lg p-3"
                   />
