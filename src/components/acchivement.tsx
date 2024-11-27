@@ -167,7 +167,7 @@ function AchievementGrid() {
                 "md:hidden": index >= columns[0].length,
               })
             }
-            animationDuration={10}
+            animationDuration={210}
           />
           <AchievementColumn
             achievements={columns[1]}
@@ -177,12 +177,12 @@ function AchievementGrid() {
                 "lg:hidden": index >= columns[1].length,
               })
             }
-            animationDuration={8}
+            animationDuration={118}
           />
           <AchievementColumn
             achievements={columns[2]}
             className="hidden lg:block"
-            animationDuration={12}
+            animationDuration={212}
           />
         </>
       )}
@@ -198,12 +198,12 @@ export function AchievementShowcase() {
       <h2 className="text-3xl font-extrabold text-gray-900 sm:text-4xl text-center mb-12">
         Our Achievements
       </h2>
-      <img
+      {/* <img
         aria-hidden="true"
         src="/achievements-background.png"
         alt=""
         className="absolute select-none hidden xl:block -left-32 top-1/3"
-      />
+      /> */}
       <AchievementGrid />
     </div>
   );

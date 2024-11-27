@@ -304,7 +304,7 @@ function FiltersContent({
           </SelectTrigger>
           <SelectContent>
             {categories.map((category) => (
-              <SelectItem key={category} value={category}>
+              <SelectItem key={category} value={category || "all"}>
                 {category}
               </SelectItem>
             ))}
