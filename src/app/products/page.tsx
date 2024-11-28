@@ -31,6 +31,7 @@ import { toast, useToast } from "@/hooks/use-toast";
 import { MotionDiv } from "@/components/type/motion";
 import { useSession } from "@clerk/nextjs";
 import { createClient } from "@supabase/supabase-js";
+import { Session } from "@clerk/nextjs/server";
 
 export default function ProductPage() {
   const [products, setProducts] = useState([]);
@@ -389,6 +390,7 @@ function ProductCard({ product, client }) {
   const { toast } = useToast();
   const incrementQuantity = () => setQuantity((prev) => prev + 1);
   const decrementQuantity = () => setQuantity((prev) => Math.max(1, prev - 1));
+  const session = useSession();
 
   async function addToCart(product, quantity) {
     try {
@@ -459,9 +461,23 @@ function ProductCard({ product, client }) {
               <Plus className="h-4 w-4" />
             </Button>
           </div>
-          <Button onClick={() => addToCart(product, quantity)}>
-            Add to Cart
-          </Button>
+          {session.isSignedIn ? (
+            <Button onClick={() => addToCart(product, quantity)}>
+              Add to Cart
+            </Button>
+          ) : (
+            <Button
+              onClick={() =>
+                toast({
+                  title: "Error",
+                  description: "Please sign in to add to cart",
+                  variant: "destructive",
+                })
+              }
+            >
+              Add to Cart
+            </Button>
+          )}
         </CardFooter>
       </Card>
     </motion.div>

@@ -174,8 +174,8 @@ export default function ProductForm({ params }) {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <Tabs defaultValue="basic" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-4 gap-4">
+          <Tabs defaultValue="basic" className="space-y-6 ">
+            <TabsList className="grid w-full grid-cols-4 gap-4 p-2 h-auto">
               <TabsTrigger value="basic" className="text-lg">
                 Basic Info
               </TabsTrigger>
