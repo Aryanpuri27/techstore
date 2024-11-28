@@ -158,7 +158,7 @@ export default function CheckoutPage() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          amount: 1 * 100, // Razorpay expects amount in paise
+          amount: total * 100, // Razorpay expects amount in paise
           currency: "INR",
           receipt: `receipt_${Date.now()}`,
           notes: {},
