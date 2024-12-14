@@ -104,7 +104,7 @@ export default function Header() {
         <div className="flex items-center justify-between">
           <Link href="/" className="flex items-center space-x-2">
             <img src="/logo.png" alt="logo" className="h-8 w-8 " />
-            <span className="text-xl font-bold">AIVora</span>
+            <span className="text-xl font-bold">AIVoraToys</span>
           </Link>
 
           <nav className="hidden md:flex space-x-4">
