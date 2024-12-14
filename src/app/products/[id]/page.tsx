@@ -72,6 +72,7 @@
 //     </div>
 //   );
 // }
+"use client";
 import { Suspense } from "react";
 import { Star, ShoppingCart, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -83,6 +84,7 @@ import ReviewSection from "@/components/ReviewSection";
 import { createClerkSupabaseClientSsr } from "@/app/ssr/client";
 import { toast } from "@/hooks/use-toast";
 import AddToCartButton from "./addToCartBtn";
+import { createClient } from "@supabase/supabase-js";
 // import Footer from "@/components/Footer";
 // import ReviewSection from "./ReviewSection";
 // import ImageCarousel from "./ImageCarousel";
@@ -115,7 +117,11 @@ export default async function ProductPage({
 }) {
   const id = (await params).id;
 
-  const client = await createClerkSupabaseClientSsr();
+  // const client = await createClerkSupabaseClientSsr();
+  const client = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_KEY!
+  );
   const { data: product, error } = await client
     .from("products")
     .select("*")
@@ -123,6 +129,7 @@ export default async function ProductPage({
     .single();
 
   if (error) {
+    console.log(product);
     console.error(error);
     return <div>Error loading product</div>;
   }
@@ -195,7 +202,6 @@ export default async function ProductPage({
                   %
                 </Badge>
               </div>
-              <p className="text-gray-700 mb-6">{product.description}</p>
               <div className="flex space-x-4 mb-8">
                 {/* <Button size="lg">Buy Now</Button> */}
                 {/* <Button
@@ -211,6 +217,7 @@ export default async function ProductPage({
                   <span className="sr-only">Add to wishlist</span>
                 </Button> */}
               </div>
+              <p className="text-gray-700 mb-6">{product.description}</p>
 
               <Tabs defaultValue="specifications">
                 <TabsList>
