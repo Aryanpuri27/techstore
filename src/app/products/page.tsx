@@ -82,7 +82,8 @@ export default function ProductPage() {
       try {
         const { data, error } = await nonAuthClient
           .from("products")
-          .select("*");
+          .select("*")
+          .order("id", { ascending: true });
         if (error) throw error;
         setProducts(data);
         setFilteredProducts(data);
@@ -129,8 +130,16 @@ export default function ProductPage() {
     );
 
     filtered.sort((a, b) => {
-      if (a[sortBy] < b[sortBy]) return sortOrder === "asc" ? -1 : 1;
-      if (a[sortBy] > b[sortBy]) return sortOrder === "asc" ? 1 : -1;
+      if (
+        a[sortBy === "name" ? "id" : sortBy] <
+        b[sortBy === "name" ? "id" : sortBy]
+      )
+        return sortOrder === "asc" ? -1 : 1;
+      if (
+        a[sortBy === "name" ? "id" : sortBy] >
+        b[sortBy === "name" ? "id" : sortBy]
+      )
+        return sortOrder === "asc" ? 1 : -1;
       return 0;
     });
 
