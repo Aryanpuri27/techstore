@@ -27,8 +27,8 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "AivoraToys",
-  description: "AivoraToys a place to buy 3d printed products",
+  title: "ReddixToys",
+  description: "ReddixToys a place to buy 3d printed products",
 };
 
 export default async function RootLayout({
