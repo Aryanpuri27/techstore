@@ -31,6 +31,13 @@ export default function AddToCartButton({ product }) {
   const client = createClerkSupabaseClient();
   async function addToCart(product, quantity) {
     try {
+      if (!session) {
+        toast({
+          title: "Sign in to add to cart",
+          description: "You need to sign in to add products to cart",
+        });
+        return;
+      }
       const response = await client.from("cart").insert({
         product_id: product.id,
         quantity: quantity,

@@ -72,7 +72,7 @@
 //     </div>
 //   );
 // }
-"use client";
+// "use client";
 import { Suspense } from "react";
 import { Star, ShoppingCart, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -109,7 +109,10 @@ const product = {
     { name: "Weight", value: "250g" },
   ],
 };
-
+const client = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_KEY!
+);
 export default async function ProductPage({
   params,
 }: {
@@ -118,10 +121,7 @@ export default async function ProductPage({
   const id = (await params).id;
 
   // const client = await createClerkSupabaseClientSsr();
-  const client = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_KEY!
-  );
+
   const { data: product, error } = await client
     .from("products")
     .select("*")
@@ -133,7 +133,7 @@ export default async function ProductPage({
     console.error(error);
     return <div>Error loading product</div>;
   }
-  console.log(product);
+
   async function addToCart(product, quantity) {
     "use client";
     try {

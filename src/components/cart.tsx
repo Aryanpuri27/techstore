@@ -1,6 +1,6 @@
-// "use server";
+"use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import {
   Sheet,
   SheetContent,
@@ -13,213 +13,92 @@ import { Button } from "./ui/button";
 import { Minus, Plus, ShoppingCart, X } from "lucide-react";
 import { Badge } from "./ui/badge";
 import Image from "next/image";
-import { redirect } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useSession } from "@clerk/nextjs";
-import { createClient } from "@supabase/supabase-js";
-// import { getFromCartAction } from "@/app/ssr/getFromCart";
-
-// import { createClerkSupabaseClientSsr } from "@/app/ssr/client";
-
-const products = [
-  {
-    id: 1,
-    name: "Custom Figurine",
-    category: "Figurines",
-    price: 29.99,
-    material: "PLA",
-    printTime: 3,
-    image: "/placeholder.svg?height=200&width=200&text=Figurine",
-  },
-  {
-    id: 2,
-    name: "Architectural Model",
-    category: "Models",
-    price: 99.99,
-    material: "Resin",
-    printTime: 8,
-    image: "/placeholder.svg?height=200&width=200&text=Model",
-  },
-  {
-    id: 3,
-    name: "Gear Set",
-    category: "Mechanical",
-    price: 39.99,
-    material: "ABS",
-    printTime: 5,
-    image: "/placeholder.svg?height=200&width=200&text=Gears",
-  },
-  {
-    id: 4,
-    name: "Phone Case",
-    category: "Accessories",
-    price: 19.99,
-    material: "TPU",
-    printTime: 2,
-    image: "/placeholder.svg?height=200&width=200&text=Case",
-  },
-  {
-    id: 5,
-    name: "Vase",
-    category: "Home Decor",
-    price: 49.99,
-    material: "PETG",
-    printTime: 6,
-    image: "/placeholder.svg?height=200&width=200&text=Vase",
-  },
-  {
-    id: 6,
-    name: "Drone Parts",
-    category: "Electronics",
-    price: 79.99,
-    material: "Nylon",
-    printTime: 4,
-    image: "/placeholder.svg?height=200&width=200&text=Drone",
-  },
-];
+import { createSupabaseClient } from "@/lib/supabase-client";
 
 function ShoppingCartCom() {
   const [cart, setCart] = useState([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
-
   const { session } = useSession();
-  function createClerkSupabaseClient() {
-    return createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_KEY!,
-      {
-        global: {
-          // Get the custom Supabase token from Clerk
-          fetch: async (url, options = {}) => {
-            // The Clerk `session` object has the getToken() method
-            const clerkToken = await session?.getToken({
-              // Pass the name of the JWT template you created in the Clerk Dashboard
-              // For this tutorial, you named it 'supabase'
-              template: "supabase",
-            });
+  const router = useRouter();
 
-            // Insert the Clerk Supabase token into the headers
-            const headers = new Headers((options as RequestInit).headers);
-            headers.set("Authorization", `Bearer ${clerkToken}`);
+  const client = React.useMemo(() => {
+    if (session) {
+      return createSupabaseClient(() =>
+        session.getToken({ template: "supabase" })
+      );
+    }
+    return null;
+  }, [session]);
 
-            // Call the default fetch
-            return fetch(url, {
-              ...options,
-              headers,
-            });
-          },
-        },
-      }
-    );
-  }
-  const client = createClerkSupabaseClient();
-  // async function abc() {
-  //   const response = await client.from("cart").select("*");
-  //   console.log("response", response);
-  //   setCart(response.data);
-  // }
-  // abc();
-  useEffect(() => {
-    const abc = async () => {
-      // const response = await client.from("cart").select("*");
+  const fetchCart = useCallback(async () => {
+    if (client) {
       const { data, error } = await client.from("cart").select(`
-      id,
-      quantity,
-      product_id,
-      products (
         id,
-        name,
-        category,
-        price,
-        discounted_price,
-        rating,
-        review_count,
-        description,
-        images,
-        specifications
-      )
-    `);
-      console.log("data", data);
-      if (data) setCart(data);
-    };
-    abc();
-  }, [isCartOpen]);
-
-  // // Retrieve cart from localStorage
-  // const getFromLocalStorage = () => {
-  //   const cart = localStorage.getItem("cart");
-  //   console.log("cart", cart);
-  //   return cart ? JSON.parse(cart) : [];
-  // };
-
-  // // Sync cart with local storage on load and save when cart changes
-  // useEffect(() => {
-  //   setCart(getFromLocalStorage());
-  // }, [isCartOpen]);
-
-  // async () => {
-  //   // setCart();
-  // };
-
-  // useEffect(() => {
-
-  // }, []);
-
-  const addToCart = (product, quantity) => {
-    setCart((prevCart) => {
-      const existingItem = prevCart.find((item) => item.id === product.id);
-      if (existingItem) {
-        return prevCart.map((item) =>
-          item.id === product.id
-            ? { ...item, quantity: item.quantity + quantity }
-            : item
-        );
-      } else {
-        return [...prevCart, { ...product, quantity }];
-      }
-    });
-    setIsCartOpen(true);
-  };
-
-  const removeFromCart = async (productId) => {
-    setCart((prevCart) => prevCart.filter((item) => item.id !== productId));
-    await client.from("cart").delete().match({ id: productId });
-  };
-
-  const updateCartItemQuantity = async (productId, newQuantity) => {
-    setCart((prevCart) =>
-      prevCart
-        .map((item) =>
-          item.id === productId
-            ? { ...item, quantity: Math.max(0, newQuantity) }
-            : item
+        quantity,
+        product_id,
+        products (
+          id,
+          name,
+          category,
+          price,
+          discounted_price,
+          rating,
+          review_count,
+          description,
+          images,
+          specifications
         )
-        .filter((item) => item.quantity > 0)
-    );
+      `);
+      if (data) setCart(data);
+      if (error) console.error("Error fetching cart:", error);
+    }
+  }, [client]);
 
-    await client
-      .from("cart")
-      .update({ quantity: newQuantity })
-      .match({ id: productId });
-  };
+  useEffect(() => {
+    fetchCart();
+  }, [fetchCart, isCartOpen]);
 
-  const cartTotal = Array.isArray(cart)
-    ? cart.reduce(
-        (total, item) => total + item.products.price * item.quantity,
-        0
-      )
-    : 0;
-  function handelCheckout() {
+  const updateCartItemQuantity = useCallback(
+    async (productId, newQuantity) => {
+      if (client) {
+        await client
+          .from("cart")
+          .update({ quantity: newQuantity })
+          .match({ id: productId });
+        fetchCart();
+      }
+    },
+    [client, fetchCart]
+  );
+
+  const removeFromCart = useCallback(
+    async (productId) => {
+      if (client) {
+        await client.from("cart").delete().match({ id: productId });
+        fetchCart();
+      }
+    },
+    [client, fetchCart]
+  );
+
+  const cartTotal = cart.reduce(
+    (total, item) => total + item.products.price * item.quantity,
+    0
+  );
+
+  const handleCheckout = () => {
     setIsCartOpen(false);
-    redirect("/checkout");
-  }
+    router.push("/checkout");
+  };
 
   return (
     <div>
       <Sheet open={isCartOpen} onOpenChange={setIsCartOpen}>
         <SheetTrigger asChild>
           <Button variant="ghost" className="relative">
-            <ShoppingCart className=" h-4 w-4" />
-
+            <ShoppingCart className="h-4 w-4" />
             {cart.length > 0 && (
               <Badge variant="destructive" className="absolute -top-2 -right-2">
                 {cart.reduce((total, item) => total + item.quantity, 0)}
@@ -237,7 +116,6 @@ function ShoppingCartCom() {
           <div className="mt-6 space-y-4">
             {cart.map((item) => (
               <div key={item.id} className="flex items-center justify-between">
-                {/* <h1>{JSON.stringify(item)}</h1> */}
                 <div className="flex items-center space-x-4">
                   <Image
                     src={item.products.images[0]}
@@ -290,11 +168,7 @@ function ShoppingCartCom() {
                 <span className="font-semibold">Total:</span>
                 <span className="font-bold">Rs{cartTotal.toFixed(2)}</span>
               </div>
-              <Button
-                className="w-full"
-                onClick={handelCheckout}
-                // formAction={"/checkout"}
-              >
+              <Button className="w-full" onClick={handleCheckout}>
                 Checkout
               </Button>
             </div>
